@@ -1,0 +1,29 @@
+# ---- Dataset (do NOT commit ~2.4 GB; link it in the README instead) ----
+chest_xray/
+*.jpeg
+*.jpg
+
+# ---- Trained models / Kaggle outputs (too large for GitHub; >100 MB is rejected) ----
+kaggle-output/
+*.keras
+*.h5
+
+# ---- Python / Jupyter ----
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.virtual_documents/
+
+# ---- OS / editor junk ----
+.DS_Store
+__MACOSX/
+Thumbs.db
+.vscode/
+.idea/
+
+# ---- Local Word document drafts ----
+*.docx
+
+# ---- Keep figures tracked (they are a required deliverable) ----
+!figures/
+!figures/*.png
