@@ -1,4 +1,4 @@
-# Chest X-Ray Pneumonia Detection — CNN vs. Transfer Learning
+# Phase 2 - Proposal and Code Implementation - Ivan Logutov
 
 Applied CNN-based **binary image classification** project (Machine Learning course, Phase 2).
 The system classifies a chest X-ray as **NORMAL** or **PNEUMONIA**, comparing a custom
