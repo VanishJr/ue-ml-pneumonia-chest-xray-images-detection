@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700" font-family="Arial, Helvetica, sans-serif">
+  <!-- Architecture of the two models. Custom CNN = ACTUAL notebook model:
+       4 blocks (Conv -> BatchNorm -> ReLU -> MaxPool), filters 32->64->128->256,
+       then GlobalAveragePooling -> Dense(512) -> Dropout(0.5) -> Dense(1, sigmoid). -->
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#333"/>
+    </marker>
+  </defs>
+  <style>
+    .lbl{font-size:13px;fill:#111;text-anchor:middle;}
+    .small{font-size:11px;fill:#444;text-anchor:middle;}
+    .title{font-size:18px;font-weight:bold;fill:#111;text-anchor:middle;}
+    .io{fill:#d6e4ff;}
+    .conv{fill:#cfe8cf;}
+    .dense{fill:#ffe0b3;}
+    .frozen{fill:#d9d9d9;}
+    .out{fill:#f5c6cb;}
+    rect{stroke:#333;stroke-width:1.5;}
+  </style>
+
+  <text x="225" y="28" class="title">Custom CNN (from scratch)</text>
+  <text x="675" y="28" class="title">VGG16 Transfer Learning</text>
+
+  <!-- ============ LEFT: Custom CNN ============ -->
+  <rect class="io" x="115" y="46"  width="220" height="38" rx="6"/>
+  <text class="lbl" x="225" y="70">Input  224 x 224 x 3</text>
+  <line x1="225" y1="84" x2="225" y2="100" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="conv" x="95" y="102" width="260" height="50" rx="6"/>
+  <text class="lbl" x="225" y="120">Block 1: Conv(32) + BN + ReLU</text>
+  <text class="small" x="225" y="138">MaxPool 2x2</text>
+  <line x1="225" y1="152" x2="225" y2="166" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="conv" x="95" y="168" width="260" height="50" rx="6"/>
+  <text class="lbl" x="225" y="186">Block 2: Conv(64) + BN + ReLU</text>
+  <text class="small" x="225" y="204">MaxPool 2x2</text>
+  <line x1="225" y1="218" x2="225" y2="232" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="conv" x="95" y="234" width="260" height="50" rx="6"/>
+  <text class="lbl" x="225" y="252">Block 3: Conv(128) + BN + ReLU</text>
+  <text class="small" x="225" y="270">MaxPool 2x2</text>
+  <line x1="225" y1="284" x2="225" y2="298" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="conv" x="95" y="300" width="260" height="50" rx="6"/>
+  <text class="lbl" x="225" y="318">Block 4: Conv(256) + BN + ReLU</text>
+  <text class="small" x="225" y="336">MaxPool 2x2</text>
+  <line x1="225" y1="350" x2="225" y2="364" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="conv" x="115" y="366" width="220" height="40" rx="6"/>
+  <text class="lbl" x="225" y="391">GlobalAveragePooling -> 256</text>
+  <line x1="225" y1="406" x2="225" y2="420" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="dense" x="115" y="422" width="220" height="48" rx="6"/>
+  <text class="lbl" x="225" y="442">Dense 512 + ReLU</text>
+  <text class="small" x="225" y="460">Dropout 0.5</text>
+  <line x1="225" y1="470" x2="225" y2="484" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="out" x="135" y="486" width="180" height="44" rx="6"/>
+  <text class="lbl" x="225" y="506">Dense 1</text>
+  <text class="small" x="225" y="522">Sigmoid -> P(Pneumonia)</text>
+
+  <text class="small" x="225" y="560">Total params: 522,433  |  Trainable: 521,473</text>
+  <text class="small" x="225" y="578">Loss: class-weighted binary cross-entropy</text>
+
+  <!-- ============ RIGHT: VGG16 TL ============ -->
+  <rect class="io" x="565" y="46"  width="220" height="38" rx="6"/>
+  <text class="lbl" x="675" y="70">Input  224 x 224 x 3</text>
+  <line x1="675" y1="84" x2="675" y2="100" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="frozen" x="545" y="102" width="260" height="124" rx="6"/>
+  <text class="lbl" x="675" y="128">VGG16 convolutional base</text>
+  <text class="small" x="675" y="148">(ImageNet pretrained)</text>
+  <text class="small" x="675" y="168">blocks 1-4: FROZEN</text>
+  <text class="small" x="675" y="188">block 5: unfrozen in</text>
+  <text class="small" x="675" y="206">fine-tuning phase (lr 1e-5)</text>
+  <line x1="675" y1="226" x2="675" y2="244" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="conv" x="545" y="246" width="260" height="42" rx="6"/>
+  <text class="lbl" x="675" y="272">GlobalAveragePooling -> 512</text>
+  <line x1="675" y1="288" x2="675" y2="306" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="dense" x="565" y="308" width="220" height="48" rx="6"/>
+  <text class="lbl" x="675" y="328">Dense 256 + ReLU</text>
+  <text class="small" x="675" y="346">Dropout 0.4</text>
+  <line x1="675" y1="356" x2="675" y2="370" stroke="#333" marker-end="url(#arr)"/>
+
+  <rect class="out" x="585" y="372" width="180" height="44" rx="6"/>
+  <text class="lbl" x="675" y="392">Dense 1</text>
+  <text class="small" x="675" y="408">Sigmoid -> P(Pneumonia)</text>
+
+  <text class="small" x="675" y="446">Total params: 14,846,273</text>
+  <text class="small" x="675" y="464">Trainable: 131,585 (phase 1) -> 7,211,009 (fine-tune)</text>
+  <text class="small" x="675" y="482">Two-phase: feature extraction + fine-tuning</text>
+
+  <!-- legend -->
+  <rect x="250" y="630" width="20" height="14" class="io"/>
+  <text x="278" y="642" font-size="12" fill="#111">Input</text>
+  <rect x="340" y="630" width="20" height="14" class="conv"/>
+  <text x="368" y="642" font-size="12" fill="#111">Conv / Pool / GAP</text>
+  <rect x="490" y="630" width="20" height="14" class="dense"/>
+  <text x="518" y="642" font-size="12" fill="#111">Dense</text>
+  <rect x="575" y="630" width="20" height="14" class="frozen"/>
+  <text x="603" y="642" font-size="12" fill="#111">Frozen base</text>
+  <rect x="685" y="630" width="20" height="14" class="out"/>
+  <text x="713" y="642" font-size="12" fill="#111">Output</text>
+</svg>

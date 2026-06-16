@@ -104,7 +104,7 @@ A condensed comparison of the most representative works against our study is giv
 \hline
 \cite{albarrak2025tlpneunet} & CXR & TL-PneuNet (CNN-based TL framework) & Yes & Data augmentation & Not specified & High accuracy / F1 \\
 \hline
-\textbf{This work} & Kermany CXR (5,856 imgs, fixed train/val/test split) & Custom CNN (from scratch) vs.\ VGG16 (TL) & Yes (VGG16) & Class-weighted loss + augmentation & Grad-CAM & Acc 0.728/0.896, Recall 0.997/0.982, F1 0.821/0.922, AUC 0.930/0.970 \\
+\textbf{This work} & Kermany CXR (5,856 imgs; official test split, stratified 80/20 train/val) & Custom CNN (from scratch) vs.\ VGG16 (TL) & Yes (VGG16) & Class-weighted loss + augmentation & Grad-CAM & Acc 0.728/0.896, Recall 0.997/0.982, F1 0.821/0.922, AUC 0.930/0.970 \\
 \hline
 \end{tabular}
 \end{table*}
@@ -112,33 +112,34 @@ A condensed comparison of the most representative works against our study is giv
 \subsection{Dataset}
 We used the Chest X-Ray Images (Pneumonia) dataset introduced by Kermany et al., which is openly available on Kaggle \cite{kermany2018identifying}.
 The dataset contains 5{,}856 frontal chest radiographs of paediatric patients, each labelled as either normal or pneumonia.
-It comes with a fixed split of 5{,}216 training images, 16 validation images, and 624 test images, which we kept unchanged for reproducibility.
-The training set is clearly imbalanced, with 1{,}341 normal and 3{,}875 pneumonia images, roughly a 2.89 to 1 ratio in favour of pneumonia, as summarised in Table~\ref{tab:Dataset} and visualised in Fig.~\ref{fig:classdist}.
+It ships with a native split of 5{,}216 training, 16 validation, and 624 test images.
+Because the native validation set holds only sixteen images, which is far too few for stable monitoring, we discarded it and rebuilt the validation set as a stratified 80/20 split of the training data, leaving 4{,}172 training and 1{,}044 validation images while keeping the official test set untouched.
+The training data is clearly imbalanced in favour of pneumonia, at roughly a 2.89 to 1 ratio that the stratified split preserves across the training and validation subsets, as summarised in Table~\ref{tab:Dataset} and visualised in Fig.~\ref{fig:classdist}.
 The test set is more balanced at 234 normal against 390 pneumonia images.
 Before training we resized every image to 224 by 224 pixels with three channels and rescaled the pixel values to the zero to one range.
-We applied light augmentation to the training images only, using horizontal flips, rotations of up to ten degrees, and a small zoom of 0.1, which adds variety without distorting the anatomy.
+We applied light augmentation to the training images only, using horizontal flips, rotations of up to ten degrees, small width and height shifts, and a small zoom of 0.1, which adds variety without distorting the anatomy.
 Figure~\ref{fig:samples} shows sample images together with their labels.
-One limitation worth stating early is that the validation split holds only sixteen images, which makes the validation metrics noisy and a weak basis for model selection.
+Because our validation set is carved from the training data rather than collected separately, it shares the same distribution, which we note as a mild limitation.
 
 \begin{table}[!t]
 \centering
-\caption{Composition of the Kermany et al. chest X-ray dataset across the three predefined splits. The imbalance ratio is the number of pneumonia images divided by the number of normal images. The training split is markedly skewed toward the pneumonia class, while the validation split contains only sixteen images.}
+\caption{Composition of the dataset across the train, validation, and test splits actually used in our experiments. The native 16-image validation set was replaced by a stratified 80/20 split of the training data, which preserves the class ratio; the official test set is unchanged. The imbalance ratio is the number of pneumonia images divided by the number of normal images.}
 \label{tab:Dataset}
 \begin{tabular}{|l|c|c|c|c|}
 \hline
 \textbf{Split} & \textbf{NORMAL} & \textbf{PNEUMONIA} & \textbf{Total} & \textbf{Imbalance} \\
                &                 &                    &                & \textbf{Ratio} \\ \hline
-Train & 1341 & 3875 & 5216 & 2.89:1 \\ \hline
-Val   & 8    & 8    & 16   & 1.00:1 \\ \hline
+Train (80\%) & 1073 & 3099 & 4172 & 2.89:1 \\ \hline
+Val (20\%)   & 268  & 776  & 1044 & 2.90:1 \\ \hline
 Test  & 234  & 390  & 624  & 1.67:1 \\ \hline
-\textbf{Total} & \textbf{1583} & \textbf{4273} & \textbf{5856} & \textbf{2.70:1} \\ \hline
+\textbf{Total} & \textbf{1575} & \textbf{4265} & \textbf{5840} & \textbf{2.71:1} \\ \hline
 \end{tabular}
 \end{table}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.46\textwidth]{Figures/class_distribution.pdf}
-\caption{Class distribution of the dataset across the training, validation, and test splits. The training set is dominated by the pneumonia class at roughly a 2.89 to 1 ratio, which motivates the class-weighted loss used during training, whereas the small validation set is evenly balanced with eight images per class.}
+\caption{Class distribution of the dataset across the training, validation, and test splits. The training set is dominated by the pneumonia class at roughly a 2.89 to 1 ratio, which motivates the class-weighted loss used during training, and the stratified split preserves the same ratio in the validation subset.}
 \label{fig:classdist}
 \end{figure}
 
@@ -191,7 +192,7 @@ In short, the report contributes a fair comparison, an imbalance-aware training 
 \section{Methodology}
 \subsection{Overall Workflow}
 Our pipeline follows a single path that splits into two parallel training tracks and then merges again for evaluation, as shown in Fig.~\ref{fig:workflow}.
-We start from the Kaggle dataset and keep its original train, validation, and test split.
+We start from the Kaggle dataset, keep the official test split, and rebuild the validation set as a stratified 80/20 split of the training data.
 Every image is resized to 224 by 224 pixels and rescaled to the zero to one range, which gives both models the same input.
 The training images then pass through the augmentation step described in the dataset section, while the validation and test images are left untouched.
 From there the data feeds two independent tracks, one training the custom CNN from scratch and the other fine-tuning VGG16.
@@ -202,16 +203,16 @@ Finally we run Grad-CAM on both models to see which regions drive their predicti
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.92\textwidth]{Figures/workflow.pdf}
-\caption{End-to-end experimental workflow. The Kermany chest X-ray dataset is taken with its fixed train/validation/test split, preprocessed to 224 by 224 pixels and rescaled, and augmented on the training set only. The data then feeds two parallel training tracks, a custom CNN trained from scratch and a fine-tuned VGG16, both sharing the same class-weighted binary cross-entropy loss. Both models are evaluated on the held-out test set and interpreted with Grad-CAM before a final comparison.}
+\caption{End-to-end experimental workflow. The Kermany chest X-ray dataset is taken with the official test split and a stratified 80/20 train/validation split, preprocessed to 224 by 224 pixels and rescaled, and augmented on the training set only. The data then feeds two parallel training tracks, a custom CNN trained from scratch and a fine-tuned VGG16, both sharing the same class-weighted binary cross-entropy loss. Both models are evaluated on the held-out test set and interpreted with Grad-CAM before a final comparison.}
 \label{fig:workflow}
 \end{figure*}
 
 \subsection{Model Architectures}
-The custom CNN is a compact network with three convolutional blocks followed by a small classifier head.
-Each block applies a convolution with a 3 by 3 kernel, then batch normalisation, then a ReLU activation, then 2 by 2 max pooling, and finally dropout at 0.25.
-The number of filters grows across the blocks, from 32 to 64 to 128, which lets the network capture coarse shapes first and finer texture later.
-We chose three blocks as a balance, since fewer blocks underfit the lung patterns and more blocks tend to overfit on a dataset of this size.
-After the convolutional stack we flatten the feature maps and pass them through a dense layer of 512 units with ReLU, followed by a heavier dropout of 0.5 to limit overfitting.
+The custom CNN is a compact network with four convolutional blocks followed by a small classifier head.
+Each block applies a convolution with a 3 by 3 kernel, then batch normalisation, then a ReLU activation, and finally 2 by 2 max pooling.
+The number of filters doubles across the blocks, from 32 to 64 to 128 to 256, which lets the network capture coarse shapes first and finer texture later.
+We chose four blocks as a balance, since fewer blocks underfit the lung patterns and more blocks tend to overfit on a dataset of this size.
+After the convolutional stack we apply global average pooling and pass the result through a dense layer of 512 units with ReLU, followed by a dropout of 0.5 to limit overfitting.
 The output is a single neuron with a sigmoid activation, which fits the binary nature of the task and gives a probability of pneumonia.
 We train this head with binary cross-entropy weighted by class, so that the smaller normal class is not drowned out.
 The full model has about 522{,}000 parameters, which is small enough to train quickly and to deploy on modest hardware.
@@ -220,7 +221,7 @@ Both architectures are shown side by side in Fig.~\ref{fig:arch}.
 The second model reuses VGG16, a deep network of stacked 3 by 3 convolutions that was pretrained on ImageNet \cite{simonyan2015very}.
 We picked VGG16 because its features transfer well to medical images and because it is a common and well documented baseline, which makes our results easy to place against prior work \cite{rahman2020transfer}.
 We removed the original classifier and kept only the convolutional base as a feature extractor.
-On top of it we added a GlobalAveragePooling2D layer, a dense layer of 256 units with ReLU, a dropout of 0.5, and a single sigmoid output.
+On top of it we added a GlobalAveragePooling2D layer, a dense layer of 256 units with ReLU, a dropout of 0.4, and a single sigmoid output.
 Training happened in two phases.
 In the first phase we froze the whole VGG16 base and trained only the new head, so the model could adapt its classifier without disturbing the pretrained weights.
 In the second phase we unfroze the last convolutional block, block five, and continued training at a ten times smaller learning rate, which lets the deeper features shift slightly toward chest X-rays without erasing what they learned from ImageNet.
@@ -229,7 +230,7 @@ This staged fine-tuning is a standard and fairly safe way to adapt a large backb
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.48\textwidth]{Figures/architecture.pdf}
-\caption{Architectures of the two compared models. The custom CNN (left) is trained from scratch and stacks three convolutional blocks, each combining convolution, batch normalisation, ReLU, max pooling, and dropout, before a dense classifier head. The VGG16 transfer-learning model (right) reuses the ImageNet-pretrained convolutional base, with blocks one to four frozen and block five unfrozen during fine-tuning, followed by a global average pooling and a small dense head. Both end in a single sigmoid unit producing the pneumonia probability.}
+\caption{Architectures of the two compared models. The custom CNN (left) is trained from scratch and stacks four convolutional blocks (32 to 256 filters), each combining convolution, batch normalisation, ReLU, and max pooling, followed by global average pooling and a dense classifier head. The VGG16 transfer-learning model (right) reuses the ImageNet-pretrained convolutional base, with blocks one to four frozen and block five unfrozen during fine-tuning, followed by a global average pooling and a small dense head. Both end in a single sigmoid unit producing the pneumonia probability.}
 \label{fig:arch}
 \end{figure}
 
@@ -237,7 +238,8 @@ This staged fine-tuning is a standard and fairly safe way to adapt a large backb
 We trained both models with the Adam optimizer and a starting learning rate of 1e-4, dropping to 1e-5 for the VGG16 fine-tuning phase.
 The loss was binary cross-entropy weighted by class, with weights of about 1.94 for the normal class and 0.67 for the pneumonia class, which corresponds to the roughly 2.89 to 1 imbalance in the training set.
 We used a batch size of 32 and fixed the random seed to 42 so the runs can be repeated.
-Three callbacks guided training: EarlyStopping with a patience of 5 to stop once the validation AUC stopped improving, ReduceLROnPlateau to lower the learning rate when progress stalled, and ModelCheckpoint to keep the best weights.
+Three callbacks guided training: EarlyStopping on the validation AUC with a patience of 5 and best-weight restoration, ReduceLROnPlateau on the validation loss with a factor of 0.5 and a patience of 3, and ModelCheckpoint to keep the best weights by validation AUC.
+We deliberately monitored AUC rather than recall, because recall can be trivially maximised by a model that always predicts pneumonia, whereas AUC is threshold-free and rewards genuine discrimination.
 Under these settings the custom CNN stopped after 14 of a possible 30 epochs, while VGG16 ran 10 feature-extraction epochs followed by 10 fine-tuning epochs.
 All experiments were run in Kaggle notebooks with GPU acceleration, which kept each run to a manageable time.
 For evaluation we report accuracy, recall, precision, F1-score, and AUC-ROC, and we also inspect the confusion matrix for each model.
@@ -248,7 +250,7 @@ Both models learned the task, but they ended at clearly different operating poin
 The custom CNN trained from scratch reached a test accuracy of 0.7276, an F1-score of 0.8207, and an AUC-ROC of 0.9295.
 The VGG16 transfer learning model reached a higher test accuracy of 0.8958, an F1-score of 0.9218, and an AUC-ROC of 0.9697.
 On every aggregate metric except raw recall, VGG16 came out ahead, which answers RQ2 in its favour.
-The training curves in Fig.~\ref{fig:vggcurves} and Fig.~\ref{fig:cnncurves} show that VGG16 converged smoothly during fine-tuning, with its validation AUC climbing above 0.99, while the custom CNN showed a noisier validation signal driven partly by the tiny validation set.
+The training curves in Fig.~\ref{fig:vggcurves} and Fig.~\ref{fig:cnncurves} show that VGG16 converged smoothly during fine-tuning, with its validation AUC climbing above 0.99, while the custom CNN showed a noisier validation signal across its training run.
 For RQ1, the custom network still performs well above chance and captures the disease pattern, so a lightweight model trained from scratch is far from useless on this benchmark.
 The gap of about seventeen accuracy points, also visible in the side-by-side bars of Fig.~\ref{fig:comparison}, indicates that the pretrained features give VGG16 a real advantage when the labelled data is limited.
 At the same time the difference in AUC is smaller, around four points, which suggests both models rank cases similarly even though they place their decision thresholds differently.
@@ -275,7 +277,7 @@ Neither result is simply better, because the right choice depends on whether the
 \begin{figure}[!t]
 \centering
 \includegraphics[width=0.46\textwidth]{Figures/vgg16_training_curves.pdf}
-\caption{Training and validation curves for the VGG16 transfer-learning model across the feature-extraction and fine-tuning phases. The validation AUC rises above 0.99 during fine-tuning and the loss decreases steadily, indicating stable convergence despite the very small validation set.}
+\caption{Training and validation curves for the VGG16 transfer-learning model across the feature-extraction and fine-tuning phases. The validation AUC rises above 0.99 during fine-tuning and the loss decreases steadily, indicating stable convergence on the held-out validation data.}
 \label{fig:vggcurves}
 \end{figure}
 
@@ -368,7 +370,7 @@ Our paired Grad-CAM analysis is also less common, since interpretability is ofte
 Overall, our results agree with the literature on VGG16 and add a clear, if uncomfortable, example of what aggressive sensitivity looks like.
 
 This study has several limitations that temper the conclusions.
-The most obvious is the validation set of only sixteen images, which makes the validation metrics unstable and weakens early stopping and model selection.
+One is that our validation set is carved from the training data by a stratified split rather than collected independently, so it shares the same distribution and may give a slightly optimistic picture of generalisation.
 We also used a single dataset from a single source, so we cannot say how either model would behave on images from different scanners, hospitals, or patient populations.
 There was no external validation, which is the real test of whether a medical model generalises, and our numbers may drop on unseen data.
 The task itself is binary, normal against pneumonia, so the models do not distinguish bacterial from viral pneumonia, a split that matters for treatment.
@@ -396,7 +398,7 @@ That sensitivity came at the price of many false positives, since its recall on 
 The key lesson is that there is no single best model here, because the right choice depends on the goal.
 For a balanced decision the VGG16 model is the better tool, while for a first-pass screening filter that must not miss sick patients the high-recall custom network has real value.
 The class-weighted loss pushed both models toward high sensitivity, but only the pretrained backbone kept a usable specificity, which shows that good representations matter more than the loss alone.
-Our findings are a careful benchmark rather than a finished product, given the tiny validation set and single data source.
+Our findings are a careful benchmark rather than a finished product, given the single data source and the absence of external validation.
 Future work on stronger backbones, ensembles, multiclass labels, and external validation should build naturally on this comparison.
 
 \bibliographystyle{IEEEtran}

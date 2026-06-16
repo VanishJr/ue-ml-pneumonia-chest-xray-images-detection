@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520" font-family="Arial, Helvetica, sans-serif">
-  <!-- ============ DRAFT workflow pipeline for DrawIO/Canva redraw ============ -->
+  <!-- Workflow pipeline. Validation is rebuilt as a stratified 80/20 split of train. -->
   <defs>
     <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L8,3 L0,6 Z" fill="#333"/>
     </marker>
   </defs>
   <style>
-    .b{stroke:#333;stroke-width:1.5;}
+    rect{stroke:#333;stroke-width:1.5;}
     .t{font-size:13px;fill:#111;text-anchor:middle;}
     .s{font-size:11px;fill:#444;text-anchor:middle;}
     .data{fill:#d6e4ff;}
@@ -19,66 +19,63 @@
 
   <text x="590" y="28" class="title">Experimental workflow: chest X-ray pneumonia detection</text>
 
-  <!-- Row 1: data -> split -> preprocess -> augment -->
-  <rect class="b data" x="30"  y="60" width="170" height="56" rx="6"/>
+  <!-- Row 1 -->
+  <rect class="data" x="30"  y="60" width="170" height="56" rx="6"/>
   <text class="t" x="115" y="84">Kaggle dataset</text>
   <text class="s" x="115" y="102">Kermany et al. 2018</text>
   <line x1="200" y1="88" x2="232" y2="88" stroke="#333" marker-end="url(#a)"/>
 
-  <rect class="b data" x="234" y="60" width="170" height="56" rx="6"/>
-  <text class="t" x="319" y="84">Train / Val / Test</text>
-  <text class="s" x="319" y="102">5216 / 16 / 624</text>
-  <line x1="404" y1="88" x2="436" y2="88" stroke="#333" marker-end="url(#a)"/>
+  <rect class="data" x="234" y="60" width="180" height="56" rx="6"/>
+  <text class="t" x="324" y="80">Stratified 80/20 split</text>
+  <text class="s" x="324" y="98">Train 4172 / Val 1044</text>
+  <text class="s" x="324" y="112">Test 624 (official)</text>
+  <line x1="414" y1="88" x2="446" y2="88" stroke="#333" marker-end="url(#a)"/>
 
-  <rect class="b prep" x="438" y="60" width="180" height="56" rx="6"/>
-  <text class="t" x="528" y="84">Preprocessing</text>
-  <text class="s" x="528" y="102">resize 224x224, rescale /255</text>
-  <line x1="618" y1="88" x2="650" y2="88" stroke="#333" marker-end="url(#a)"/>
+  <rect class="prep" x="448" y="60" width="180" height="56" rx="6"/>
+  <text class="t" x="538" y="84">Preprocessing</text>
+  <text class="s" x="538" y="102">resize 224x224, rescale /255</text>
+  <line x1="628" y1="88" x2="660" y2="88" stroke="#333" marker-end="url(#a)"/>
 
-  <rect class="b prep" x="652" y="60" width="190" height="56" rx="6"/>
-  <text class="t" x="747" y="84">Augmentation (train)</text>
-  <text class="s" x="747" y="102">h-flip, rotate +/-10, zoom 0.1</text>
+  <rect class="prep" x="662" y="60" width="200" height="56" rx="6"/>
+  <text class="t" x="762" y="80">Augmentation (train)</text>
+  <text class="s" x="762" y="98">flip, rotate +/-10, shift,</text>
+  <text class="s" x="762" y="112">zoom 0.1</text>
 
-  <!-- elbow down from augmentation to branch point -->
-  <line x1="747" y1="116" x2="747" y2="150" stroke="#333"/>
-  <line x1="747" y1="150" x2="300" y2="150" stroke="#333"/>
-  <line x1="747" y1="150" x2="880" y2="150" stroke="#333"/>
+  <line x1="762" y1="116" x2="762" y2="150" stroke="#333"/>
+  <line x1="762" y1="150" x2="300" y2="150" stroke="#333"/>
+  <line x1="762" y1="150" x2="880" y2="150" stroke="#333"/>
+  <text class="s" x="540" y="143">class-weighted BCE applied to both tracks</text>
 
-  <!-- Branch label -->
-  <text class="s" x="590" y="143">class-weighted BCE applied to both tracks</text>
-
-  <!-- Two parallel training tracks -->
   <line x1="300" y1="150" x2="300" y2="178" stroke="#333" marker-end="url(#a)"/>
-  <rect class="b train" x="200" y="180" width="200" height="62" rx="6"/>
+  <rect class="train" x="200" y="180" width="200" height="62" rx="6"/>
   <text class="t" x="300" y="204">Track A: Custom CNN</text>
-  <text class="s" x="300" y="222">3 conv blocks, from scratch</text>
+  <text class="s" x="300" y="222">4 conv blocks (32-256), GAP</text>
   <text class="s" x="300" y="236">Adam, EarlyStop, 14 epochs</text>
 
   <line x1="880" y1="150" x2="880" y2="178" stroke="#333" marker-end="url(#a)"/>
-  <rect class="b train" x="770" y="180" width="220" height="62" rx="6"/>
+  <rect class="train" x="770" y="180" width="220" height="62" rx="6"/>
   <text class="t" x="880" y="204">Track B: VGG16 fine-tune</text>
   <text class="s" x="880" y="222">feature extract -> unfreeze block5</text>
   <text class="s" x="880" y="236">Adam, 10 + 10 epochs</text>
 
-  <!-- merge to evaluation -->
   <line x1="300" y1="242" x2="300" y2="300" stroke="#333"/>
   <line x1="880" y1="242" x2="880" y2="300" stroke="#333"/>
   <line x1="300" y1="300" x2="590" y2="300" stroke="#333"/>
   <line x1="880" y1="300" x2="590" y2="300" stroke="#333"/>
   <line x1="590" y1="300" x2="590" y2="328" stroke="#333" marker-end="url(#a)"/>
 
-  <rect class="b eval" x="450" y="330" width="280" height="60" rx="6"/>
+  <rect class="eval" x="450" y="330" width="280" height="60" rx="6"/>
   <text class="t" x="590" y="354">Evaluation on held-out test set</text>
   <text class="s" x="590" y="374">accuracy, recall, F1, AUC-ROC, confusion matrix</text>
 
   <line x1="590" y1="390" x2="590" y2="416" stroke="#333" marker-end="url(#a)"/>
 
-  <rect class="b eval" x="410" y="418" width="180" height="50" rx="6"/>
+  <rect class="eval" x="410" y="418" width="180" height="50" rx="6"/>
   <text class="t" x="500" y="442">Grad-CAM</text>
   <text class="s" x="500" y="460">decision-region overlays</text>
 
   <line x1="590" y1="443" x2="620" y2="443" stroke="#333" marker-end="url(#a)"/>
-  <rect class="b res" x="622" y="418" width="200" height="50" rx="6"/>
+  <rect class="res" x="622" y="418" width="200" height="50" rx="6"/>
   <text class="t" x="722" y="442">Results comparison</text>
   <text class="s" x="722" y="460">recall vs accuracy trade-off</text>
 </svg>
