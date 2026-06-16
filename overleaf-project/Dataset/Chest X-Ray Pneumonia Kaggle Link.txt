@@ -1,0 +1,6 @@
+Dataset: Chest X-Ray Images (Pneumonia)
+Source: Kaggle - https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
+Original paper: Kermany et al. (2018), Cell, DOI: 10.1016/j.cell.2018.02.010
+Size: ~2.4 GB (not committed due to size)
+Split: Train 5216 / Val 16 / Test 624 images
+Classes: NORMAL (1341 train) / PNEUMONIA (3875 train)
