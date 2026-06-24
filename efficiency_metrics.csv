@@ -1,0 +1,4 @@
+Model,Total params,Trainable params,Model size (MB),Train time (s),Inference / img (ms),Throughput (img/s)
+Custom CNN,522433,521473,6.06,919.6,17.03,58.7
+VGG16,14846273,7211009,111.75,1650.7,24.17,41.4
+MobileNetV2,2586177,1676673,23.23,1650.3,129.49,7.7

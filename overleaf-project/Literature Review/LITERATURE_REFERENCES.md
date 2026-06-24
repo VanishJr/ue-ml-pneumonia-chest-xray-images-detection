@@ -69,3 +69,24 @@
 27. **aitnasser2023review** — Ait Nasser, A., Akhloufi, M.A. (2023). "A Review of Recent Advances in Deep Learning Models for Chest Disease Detection Using Radiography." *Diagnostics*, 13(1), 159. DOI: 10.3390/diagnostics13010159
 
 28. **vyas2026systematic** — Vyas, R., Pandey, R.K. (2026). "Deep Learning for Pneumonia Detection from X-ray: A Systematic Review of Models, Datasets, and Clinical Translation Challenges." *Biomedical Signal Processing and Control*, 115, 109272. DOI: 10.1016/j.bspc.2025.109272
+
+## Added for Phase 3 (elsarticle version) — core method sources and fresh 2024–2026 studies
+
+29. **lundberg2017unified** — Lundberg, S.M., Lee, S.-I. (2017). "A Unified Approach to Interpreting Model Predictions." *Advances in Neural Information Processing Systems (NeurIPS)*, 30, 4765–4774.
+
+30. **sandler2018mobilenetv2** — Sandler, M., Howard, A., Zhu, M., Zhmoginov, A., Chen, L.-C. (2018). "MobileNetV2: Inverted Residuals and Linear Bottlenecks." *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*, pp. 4510–4520. DOI: 10.1109/CVPR.2018.00474
+
+31. **bhatia2024evaluating** — Bhatia, B. (2024). "Evaluating Explainable Artificial Intelligence (XAI) Techniques in Chest Radiology Imaging Through a Human-Centered Lens." *PLOS ONE*, 19(10), e0308758. DOI: 10.1371/journal.pone.0308758
+
+32. **iqbal2024ensemblecam** — Javed Iqbal, M., et al. (2024). "Toward Explainable AI in Radiology: Ensemble-CAM for Effective Thoracic Disease Localization in Chest X-ray Images Using Weak Supervised Learning." *Frontiers in Big Data*, 7, 1366415. DOI: 10.3389/fdata.2024.1366415
+
+33. **mahamud2024explainable** — Mahamud, E., Fahad, N., Assaduzzaman, M., Zain, S.M., Goh, K.O.M., Morol, M.K. (2024). "An Explainable Artificial Intelligence Model for Multiple Lung Diseases Classification from Chest X-ray Images Using Fine-Tuned Transfer Learning." *Decision Analytics Journal*, 12, 100499. DOI: 10.1016/j.dajour.2024.100499
+
+34. **zhang2026doublesgan** — Zhang, H., et al. (2026). "Pneumonia Detection from Enhanced Chest X-Ray Images Based on Double SGAN Model." *Scientific Reports*, 16, 9922. DOI: 10.1038/s41598-026-39785-w
+
+35. **wubineh2026viral** — Wubineh, B.Z., Rusiecki, A., Halawa, K. (2026). "Viral Pneumonia Detection During the COVID-19 Pandemic Using Deep Learning and DCGAN-Based Data Augmentation." *Scientific Reports*, 16. DOI: 10.1038/s41598-026-52523-6
+
+36. **gonzalez2026lung** — González-Hidalgo, M., et al. (2026). "Lung Disease Classification Using Deep Learning and ROI-Based Chest X-Ray Images." *Technologies*, 14(1), 1. DOI: 10.3390/technologies14010001
+
+---
+Reference count: 36 total. References later than 2021 (strict): 29 (80.6%). References 2021 or later: 30 (83.3%).

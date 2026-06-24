@@ -1,107 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700" font-family="Arial, Helvetica, sans-serif">
-  <!-- Architecture of the two models. Custom CNN = ACTUAL notebook model:
-       4 blocks (Conv -> BatchNorm -> ReLU -> MaxPool), filters 32->64->128->256,
-       then GlobalAveragePooling -> Dense(512) -> Dropout(0.5) -> Dense(1, sigmoid). -->
-  <defs>
-    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#333"/>
-    </marker>
-  </defs>
-  <style>
-    .lbl{font-size:13px;fill:#111;text-anchor:middle;}
-    .small{font-size:11px;fill:#444;text-anchor:middle;}
-    .title{font-size:18px;font-weight:bold;fill:#111;text-anchor:middle;}
-    .io{fill:#d6e4ff;}
-    .conv{fill:#cfe8cf;}
-    .dense{fill:#ffe0b3;}
-    .frozen{fill:#d9d9d9;}
-    .out{fill:#f5c6cb;}
-    rect{stroke:#333;stroke-width:1.5;}
-  </style>
-
-  <text x="225" y="28" class="title">Custom CNN (from scratch)</text>
-  <text x="675" y="28" class="title">VGG16 Transfer Learning</text>
-
-  <!-- ============ LEFT: Custom CNN ============ -->
-  <rect class="io" x="115" y="46"  width="220" height="38" rx="6"/>
-  <text class="lbl" x="225" y="70">Input  224 x 224 x 3</text>
-  <line x1="225" y1="84" x2="225" y2="100" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="conv" x="95" y="102" width="260" height="50" rx="6"/>
-  <text class="lbl" x="225" y="120">Block 1: Conv(32) + BN + ReLU</text>
-  <text class="small" x="225" y="138">MaxPool 2x2</text>
-  <line x1="225" y1="152" x2="225" y2="166" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="conv" x="95" y="168" width="260" height="50" rx="6"/>
-  <text class="lbl" x="225" y="186">Block 2: Conv(64) + BN + ReLU</text>
-  <text class="small" x="225" y="204">MaxPool 2x2</text>
-  <line x1="225" y1="218" x2="225" y2="232" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="conv" x="95" y="234" width="260" height="50" rx="6"/>
-  <text class="lbl" x="225" y="252">Block 3: Conv(128) + BN + ReLU</text>
-  <text class="small" x="225" y="270">MaxPool 2x2</text>
-  <line x1="225" y1="284" x2="225" y2="298" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="conv" x="95" y="300" width="260" height="50" rx="6"/>
-  <text class="lbl" x="225" y="318">Block 4: Conv(256) + BN + ReLU</text>
-  <text class="small" x="225" y="336">MaxPool 2x2</text>
-  <line x1="225" y1="350" x2="225" y2="364" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="conv" x="115" y="366" width="220" height="40" rx="6"/>
-  <text class="lbl" x="225" y="391">GlobalAveragePooling -> 256</text>
-  <line x1="225" y1="406" x2="225" y2="420" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="dense" x="115" y="422" width="220" height="48" rx="6"/>
-  <text class="lbl" x="225" y="442">Dense 512 + ReLU</text>
-  <text class="small" x="225" y="460">Dropout 0.5</text>
-  <line x1="225" y1="470" x2="225" y2="484" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="out" x="135" y="486" width="180" height="44" rx="6"/>
-  <text class="lbl" x="225" y="506">Dense 1</text>
-  <text class="small" x="225" y="522">Sigmoid -> P(Pneumonia)</text>
-
-  <text class="small" x="225" y="560">Total params: 522,433  |  Trainable: 521,473</text>
-  <text class="small" x="225" y="578">Loss: class-weighted binary cross-entropy</text>
-
-  <!-- ============ RIGHT: VGG16 TL ============ -->
-  <rect class="io" x="565" y="46"  width="220" height="38" rx="6"/>
-  <text class="lbl" x="675" y="70">Input  224 x 224 x 3</text>
-  <line x1="675" y1="84" x2="675" y2="100" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="frozen" x="545" y="102" width="260" height="124" rx="6"/>
-  <text class="lbl" x="675" y="128">VGG16 convolutional base</text>
-  <text class="small" x="675" y="148">(ImageNet pretrained)</text>
-  <text class="small" x="675" y="168">blocks 1-4: FROZEN</text>
-  <text class="small" x="675" y="188">block 5: unfrozen in</text>
-  <text class="small" x="675" y="206">fine-tuning phase (lr 1e-5)</text>
-  <line x1="675" y1="226" x2="675" y2="244" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="conv" x="545" y="246" width="260" height="42" rx="6"/>
-  <text class="lbl" x="675" y="272">GlobalAveragePooling -> 512</text>
-  <line x1="675" y1="288" x2="675" y2="306" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="dense" x="565" y="308" width="220" height="48" rx="6"/>
-  <text class="lbl" x="675" y="328">Dense 256 + ReLU</text>
-  <text class="small" x="675" y="346">Dropout 0.4</text>
-  <line x1="675" y1="356" x2="675" y2="370" stroke="#333" marker-end="url(#arr)"/>
-
-  <rect class="out" x="585" y="372" width="180" height="44" rx="6"/>
-  <text class="lbl" x="675" y="392">Dense 1</text>
-  <text class="small" x="675" y="408">Sigmoid -> P(Pneumonia)</text>
-
-  <text class="small" x="675" y="446">Total params: 14,846,273</text>
-  <text class="small" x="675" y="464">Trainable: 131,585 (phase 1) -> 7,211,009 (fine-tune)</text>
-  <text class="small" x="675" y="482">Two-phase: feature extraction + fine-tuning</text>
-
-  <!-- legend -->
-  <rect x="250" y="630" width="20" height="14" class="io"/>
-  <text x="278" y="642" font-size="12" fill="#111">Input</text>
-  <rect x="340" y="630" width="20" height="14" class="conv"/>
-  <text x="368" y="642" font-size="12" fill="#111">Conv / Pool / GAP</text>
-  <rect x="490" y="630" width="20" height="14" class="dense"/>
-  <text x="518" y="642" font-size="12" fill="#111">Dense</text>
-  <rect x="575" y="630" width="20" height="14" class="frozen"/>
-  <text x="603" y="642" font-size="12" fill="#111">Frozen base</text>
-  <rect x="685" y="630" width="20" height="14" class="out"/>
-  <text x="713" y="642" font-size="12" fill="#111">Output</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" font-family="Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ar_s1" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#3B6FB6"/></marker>
+<marker id="ar_s2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#4F9D69"/></marker>
+<marker id="ar_s3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#E08A1E"/></marker>
+<marker id="ar_s4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#7C5BB0"/></marker>
+<marker id="ar_s5" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#C0504D"/></marker>
+<marker id="ar_s6" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#2F9C95"/></marker>
+<marker id="ar_s7" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#555555"/></marker>
+</defs>
+<rect x="0" y="0" width="1500" height="980" fill="#ffffff"/>
+<text x="750.0" y="34" font-size="22" font-weight="bold" fill="#111" text-anchor="middle">Network architectures of the three compared models</text>
+<rect x="30" y="70" width="470" height="860" rx="12" fill="#ffffff" stroke="#E08A1E" stroke-width="2"/>
+<rect x="30" y="70" width="470" height="44" rx="12" fill="#E08A1E" stroke="#E08A1E" stroke-width="2"/>
+<text x="265.0" y="98" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">Custom CNN (trained from scratch)</text>
+<rect x="60.0" y="136" width="410" height="56" rx="7" fill="#dbe6f6" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="169.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Input  224x224x3</text>
+<line x1="265.0" y1="192" x2="265.0" y2="206" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="208" width="410" height="56" rx="7" fill="#fbe6c8" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="241.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Conv 3x3, 32  - BN - ReLU - MaxPool</text>
+<line x1="265.0" y1="264" x2="265.0" y2="278" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="280" width="410" height="56" rx="7" fill="#fbe6c8" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="313.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Conv 3x3, 64  - BN - ReLU - MaxPool</text>
+<line x1="265.0" y1="336" x2="265.0" y2="350" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="352" width="410" height="56" rx="7" fill="#fbe6c8" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="385.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Conv 3x3, 128 - BN - ReLU - MaxPool</text>
+<line x1="265.0" y1="408" x2="265.0" y2="422" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="424" width="410" height="56" rx="7" fill="#fbe6c8" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="457.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Conv 3x3, 256 - BN - ReLU - MaxPool</text>
+<line x1="265.0" y1="480" x2="265.0" y2="494" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="496" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="529.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">GlobalAveragePooling2D</text>
+<line x1="265.0" y1="552" x2="265.0" y2="566" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="568" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="601.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dense 512, ReLU</text>
+<line x1="265.0" y1="624" x2="265.0" y2="638" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="640" width="410" height="56" rx="7" fill="#e6e6e6" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="673.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dropout 0.5</text>
+<line x1="265.0" y1="696" x2="265.0" y2="710" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="60.0" y="712" width="410" height="56" rx="7" fill="#f5d6d4" stroke="#444" stroke-width="1.2"/>
+<text x="265.0" y="745.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dense 1, Sigmoid</text>
+<text x="265.0" y="916" font-size="12.5" fill="#333" text-anchor="middle" font-weight="bold">0.52M params (all trainable)</text>
+<rect x="525" y="70" width="470" height="860" rx="12" fill="#ffffff" stroke="#3B6FB6" stroke-width="2"/>
+<rect x="525" y="70" width="470" height="44" rx="12" fill="#3B6FB6" stroke="#3B6FB6" stroke-width="2"/>
+<text x="760.0" y="98" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">VGG16 (ImageNet transfer learning)</text>
+<rect x="555.0" y="136" width="410" height="56" rx="7" fill="#dbe6f6" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="169.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Input  224x224x3</text>
+<line x1="760.0" y1="192" x2="760.0" y2="206" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="555.0" y="208" width="410" height="56" rx="7" fill="#e6e6e6" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="241.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">VGG16 base: block1-4 (frozen)</text>
+<line x1="760.0" y1="264" x2="760.0" y2="278" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="555.0" y="280" width="410" height="56" rx="7" fill="#dbe6f6" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="313.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">VGG16 base: block5 (fine-tuned, lr 1e-5)</text>
+<line x1="760.0" y1="336" x2="760.0" y2="350" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="555.0" y="352" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="385.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">GlobalAveragePooling2D</text>
+<line x1="760.0" y1="408" x2="760.0" y2="422" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="555.0" y="424" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="457.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dense 256, ReLU</text>
+<line x1="760.0" y1="480" x2="760.0" y2="494" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="555.0" y="496" width="410" height="56" rx="7" fill="#e6e6e6" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="529.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dropout 0.4</text>
+<line x1="760.0" y1="552" x2="760.0" y2="566" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="555.0" y="568" width="410" height="56" rx="7" fill="#f5d6d4" stroke="#444" stroke-width="1.2"/>
+<text x="760.0" y="601.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dense 1, Sigmoid</text>
+<text x="760.0" y="916" font-size="12.5" fill="#333" text-anchor="middle" font-weight="bold">14.85M total / 7.21M trainable</text>
+<rect x="1020" y="70" width="470" height="860" rx="12" fill="#ffffff" stroke="#4F9D69" stroke-width="2"/>
+<rect x="1020" y="70" width="470" height="44" rx="12" fill="#4F9D69" stroke="#4F9D69" stroke-width="2"/>
+<text x="1255.0" y="98" font-size="14.5" fill="#fff" text-anchor="middle" font-weight="bold">MobileNetV2 (ImageNet transfer learning)</text>
+<rect x="1050.0" y="136" width="410" height="56" rx="7" fill="#dbe6f6" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="169.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Input  224x224x3</text>
+<line x1="1255.0" y1="192" x2="1255.0" y2="206" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="1050.0" y="208" width="410" height="56" rx="7" fill="#e6e6e6" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="241.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">MobileNetV2 base (depthwise sep.)</text>
+<line x1="1255.0" y1="264" x2="1255.0" y2="278" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="1050.0" y="280" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="313.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Phase 1 frozen  -&gt;  Phase 2 fine-tune</text>
+<line x1="1255.0" y1="336" x2="1255.0" y2="350" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="1050.0" y="352" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="385.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">GlobalAveragePooling2D</text>
+<line x1="1255.0" y1="408" x2="1255.0" y2="422" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="1050.0" y="424" width="410" height="56" rx="7" fill="#d7eede" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="457.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dense 256, ReLU</text>
+<line x1="1255.0" y1="480" x2="1255.0" y2="494" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="1050.0" y="496" width="410" height="56" rx="7" fill="#e6e6e6" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="529.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dropout 0.4</text>
+<line x1="1255.0" y1="552" x2="1255.0" y2="566" stroke="#555555" stroke-width="2.2" marker-end="url(#ar_s7)"/>
+<rect x="1050.0" y="568" width="410" height="56" rx="7" fill="#f5d6d4" stroke="#444" stroke-width="1.2"/>
+<text x="1255.0" y="601.0" font-size="12.8" fill="#111" text-anchor="middle" font-weight="normal">Dense 1, Sigmoid</text>
+<text x="1255.0" y="916" font-size="12.5" fill="#333" text-anchor="middle" font-weight="bold">2.59M total / 1.68M trainable</text>
+<text x="750.0" y="956" font-size="12.5" fill="#555" text-anchor="middle" font-weight="normal">All three heads end in a single sigmoid unit giving P(PNEUMONIA); shared 224x224 RGB input rescaled by 1/255.</text>
 </svg>

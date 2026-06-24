@@ -1,0 +1,4 @@
+GitHub repository (all code, notebook, and figure-generation scripts):
+https://github.com/VanishJr/ue-ml-pneumonia-chest-xray-images-detection
+
+Main notebook : Codes/pneumonia-detection.ipynb
