@@ -46,9 +46,9 @@
 Pneumonia is one of the most frequent reasons for hospital admission and a leading cause of death in young children, and chest radiography is still the first-line test used to confirm it.
 Reading these images by eye is slow, shows real disagreement between observers, and depends on radiologists who are in short supply across much of the world.
 Most published chest X-ray models report a single architecture or compare several pre-trained backbones, and few place a network trained from scratch next to transfer-learning models on an identical split while reporting per-class behaviour and explanations together.
-We address this gap by training three models under one shared pipeline: a compact custom convolutional neural network built from scratch, a fine-tuned VGG16, and a fine-tuned MobileNetV2, all on the Kermany paediatric chest X-ray benchmark.
-The validation set was rebuilt as a stratified 80/20 split, class-weighted binary cross-entropy handled the 2.89:1 training imbalance, and we interpreted every model with Grad-CAM and SHAP.
-On the held-out 624-image test set VGG16 reached the best balance, with an accuracy of 0.917, a pneumonia recall of 0.974, and an AUC of 0.969, while MobileNetV2 nearly matched it at 0.905 accuracy and 0.970 AUC using far fewer parameters.
+We address this gap by training three models under one shared pipeline: a compact custom convolutional neural network (CNN) built from scratch, a fine-tuned VGG16, and a fine-tuned MobileNetV2, all on the Kermany paediatric chest X-ray benchmark.
+The validation set was rebuilt as a stratified 80/20 split, class-weighted binary cross-entropy handled the 2.89:1 training imbalance, and we interpreted every model with Gradient-weighted Class Activation Mapping (Grad-CAM) and SHapley Additive exPlanations (SHAP).
+On the held-out 624-image test set VGG16 reached the best balance, with an accuracy of 0.917, a pneumonia recall of 0.974, and an area under the curve (AUC) of 0.969, while MobileNetV2 nearly matched it at 0.905 accuracy and 0.970 AUC using far fewer parameters.
 The custom CNN obtained a high AUC of 0.914 yet collapsed at the default 0.5 threshold, labelling every normal image as pneumonia, a failure we trace to decision-threshold calibration rather than poor ranking.
 Grad-CAM and SHAP agreed that the transfer-learning models based their decisions on lung-field regions rather than image borders.
 Our contribution is a reproducible and explainable three-model comparison that exposes the accuracy, recall, and efficiency trade-offs that matter for clinical pneumonia screening.
@@ -212,13 +212,13 @@ Resizing to a fixed input, conversion to a common channel format, and pixel resc
 Some pipelines add contrast-limited adaptive histogram equalisation or lung-field segmentation to suppress irrelevant background, which can raise accuracy but also risks discarding faint disease cues~\cite{nillmani2022segmentation,rahman2020transfer}.
 Augmentation is the main defence against overfitting on small medical sets, and the literature applies rotations, shifts, zooms, and horizontal flips most often~\cite{wu2022dataaugmentation}.
 Not every transform is safe, because operations that alter anatomy or laterality can teach a model the wrong invariances, so vertical flips and heavy rotations are usually avoided for chest films.
-Generative augmentation with GANs has been proposed to enlarge minority classes, with reported gains on imbalanced medical sets, although the synthetic images can introduce artefacts of their own~\cite{ding2025improving,zhang2026doublesgan,wubineh2026viral}.
+Generative augmentation with Generative Adversarial Networks (GANs) has been proposed to enlarge minority classes, with reported gains on imbalanced medical sets, although the synthetic images can introduce artefacts of their own~\cite{ding2025improving,zhang2026doublesgan,wubineh2026viral}.
 We restrict augmentation to mild, label-preserving transforms applied to the training split only, which keeps the validation and test images untouched and the comparison fair.
 
 \subsection{Model Evaluation and Reliability}
 Evaluation practice in this field is uneven and often leans too heavily on a single number.
 Accuracy is reported almost everywhere, but on an imbalanced test set it can flatter a model that simply favours the majority class~\cite{guleria2024systematic}.
-Stronger studies add precision, recall, F1-score, and the area under the ROC curve, which separate ranking quality from threshold behaviour~\cite{kundu2021pneumonia}.
+Stronger studies add precision, recall, F1-score, and the area under the receiver operating characteristic (ROC) curve, which separate ranking quality from threshold behaviour~\cite{kundu2021pneumonia}.
 Recall, also called sensitivity, is the metric that matters most for screening, because a missed pneumonia case is more harmful than a false alarm, yet many papers report it only in aggregate.
 Confusion matrices and per-class breakdowns are the clearest way to see minority-class behaviour, but they are frequently omitted in favour of a single headline figure.
 Few studies report repeated runs, confidence intervals, or significance tests, so small reported differences between models are hard to trust~\cite{aitnasser2023review}.
@@ -265,7 +265,7 @@ The comparison is discussed in the synthesis that follows rather than repeated i
 \begin{sidewaystable}[p]
 \centering
 \tiny
-\caption{Comparative literature review matrix summarising datasets, models, evaluation practices, explainability, robustness, validation, and efficiency analysis in fourteen closely related chest X-ray classification studies. Binary columns use \cmark{} (included), \xmark{} (not included), and \pmark{} (partial or unclear). Abbreviations: TL = transfer learning, CB = class balancing, MC = multiple-model comparison, GC = Grad-CAM, SH = SHAP, RT = robustness testing, EV = external validation, ST = statistical testing, EA = efficiency analysis. The final row is the proposed study, which combines a from-scratch CNN, two transfer-learning models, paired Grad-CAM and SHAP, and a measured efficiency analysis under one identical split.}
+\caption{Comparative literature review matrix summarising datasets, models, evaluation practices, explainability, robustness, validation, and efficiency analysis in fourteen closely related chest X-ray classification studies. Binary columns use \cmark{} (included), \xmark{} (not included), and \pmark{} (partial or unclear). Abbreviations: TL = transfer learning, CB = class balancing, MC = multiple-model comparison, GC = Grad-CAM, SH = SHAP, RT = robustness testing, EV = external validation, ST = statistical testing, EA = efficiency analysis, CXR = chest X-ray, RSNA = Radiological Society of North America, XAI = explainable artificial intelligence, TPU = Tensor Processing Unit, ViT = Vision Transformer, LIME = Local Interpretable Model-agnostic Explanations, DL = deep learning. The final row is the proposed study, which combines a from-scratch CNN, two transfer-learning models, paired Grad-CAM and SHAP, and a measured efficiency analysis under one identical split.}
 \label{tab:literature_matrix}
 \begin{adjustbox}{max width=\textwidth}
 \begin{tabular}{p{1.5cm} p{1.7cm} p{1.4cm} c p{1.0cm} p{1.9cm} c c c c c c c c c p{1.7cm} p{2.4cm} p{2.4cm}}
@@ -286,7 +286,7 @@ Selvarajan et al.~\cite{selvarajan2024efficient}, 2024 & Pneumonia CXR & CXR (Ke
 Bhatia~\cite{bhatia2024evaluating}, 2024 & Chest radiology XAI & Multi-source CXR & 2--3 & varies & CNN + Grad-CAM/SHAP/LIME & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \pmark & \xmark & \xmark & Faithfulness, Acc & Human-centred comparison of XAI methods & XAI focus, not a screening pipeline \\
 Mahamud et al.~\cite{mahamud2024explainable}, 2024 & Multi lung disease & Multi-source CXR & 3--4 & $\sim$10k & DenseNet201 + XAI & \cmark & \pmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & Acc, Prec, Rec & DenseNet201 with SHAP/Grad-CAM ($\sim$99\%) & No efficiency or external validation \\
 Colin \& Surantha~\cite{colin2025interpretable}, 2025 & Pneumonia CXR & Kermany & 2 & 5{,}856 & Interpretable CNN + Grad-CAM & \cmark & \pmark & \pmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & Acc, F1, AUC & Interpretable DL for pneumonia & Single model, no SHAP \\
-\textbf{This study}, 2026 & \textbf{Pneumonia CXR} & \textbf{Kermany} & \textbf{2} & \textbf{5{,}840} & \textbf{Custom CNN + VGG16 + MobileNetV2} & \cmark & \cmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \textbf{Acc, P, R, F1, AUC} & \textbf{Controlled scratch-vs-TL comparison with paired Grad-CAM and SHAP and measured efficiency} & \textbf{Single run, single dataset, no external validation} \\
+\textbf{This study}, 2026 & \textbf{Pneumonia CXR} & \textbf{Kermany} & \textbf{2} & \textbf{5{,}840} & \textbf{Custom CNN + VGG16 + MobileNetV2} & \cmark & \cmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \textbf{Acc, Prec, Rec, F1, AUC} & \textbf{Controlled scratch-vs-TL comparison with paired Grad-CAM and SHAP and measured efficiency} & \textbf{Single run, single dataset, no external validation} \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
@@ -323,7 +323,7 @@ We fixed a single random seed and saved the best checkpoint of each model, so th
 \subsubsection{Dataset Source and Accessibility}
 We used the Chest X-Ray Images (Pneumonia) dataset introduced by Kermany and colleagues, which is openly distributed on Kaggle under the identifier \texttt{paultimothymooney/chest-xray-pneumonia}~\cite{kermany2018identifying}.
 The collection contains frontal chest radiographs of paediatric patients acquired at the Guangzhou Women and Children's Medical Center as part of routine clinical care.
-It is released under a CC BY 4.0 licence, which permits research use with attribution, and we accessed it through the Kaggle API for the experiments reported here.
+It is released under a Creative Commons Attribution 4.0 (CC BY 4.0) licence, which permits research use with attribution, and we accessed it through the Kaggle Application Programming Interface (API) for the experiments reported here.
 We selected this dataset because it is a widely used public benchmark, which makes our results comparable with a large body of prior work, and because its size and imbalance are representative of real screening conditions.
 Its paediatric focus is a known limitation that we revisit in the discussion.
 
@@ -410,7 +410,7 @@ The three networks share the same input and output but differ sharply in size an
 
 \begin{figure*}[!ht]
 \centerline{\includegraphics[width=17.8cm]{./Figures/architecture.pdf}}
-\caption{Network architectures of the three compared models. The custom CNN (left) is trained from scratch and stacks four convolutional blocks with 32 to 256 filters, each combining a 3$\times$3 convolution, batch normalisation, ReLU, and max pooling, followed by global average pooling, a 512-unit dense layer, dropout of 0.5, and a sigmoid output. The VGG16 model (centre) reuses the ImageNet base with blocks one to four frozen and block five fine-tuned, and MobileNetV2 (right) reuses its depthwise-separable base in two phases; both transfer models add a global average pooling, a 256-unit dense layer, dropout of 0.4, and a sigmoid output. All three end in a single sigmoid unit producing the pneumonia probability from a shared 224$\times$224 RGB input.}
+\caption{Network architectures of the three compared models. The custom CNN (left) is trained from scratch and stacks four convolutional blocks with 32 to 256 filters, each combining a 3$\times$3 convolution, batch normalisation, a Rectified Linear Unit (ReLU) activation, and max pooling, followed by global average pooling, a 512-unit dense layer, dropout of 0.5, and a sigmoid output. The VGG16 model (centre) reuses the ImageNet base with blocks one to four frozen and block five fine-tuned, and MobileNetV2 (right) reuses its depthwise-separable base in two phases; both transfer models add a global average pooling, a 256-unit dense layer, dropout of 0.4, and a sigmoid output. All three end in a single sigmoid unit producing the pneumonia probability from a shared 224$\times$224 RGB input.}
 \label{fig:arch}
 \end{figure*}
 
